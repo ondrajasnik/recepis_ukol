@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: tandoor
+      POSTGRES_PASSWORD: tandoor
+      POSTGRES_DB: recipes
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tandoor-network
+
+  app:
+    image: vabene1111/recipes:latest
+    depends_on:
+      - db
+    environment:
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=recipes
+      - DB_USER=tandoor
+      - DB_PASS=tandoor
+      - DB_HOST=db
+      - DB_PORT=5432
+      - ALLOWED_HOSTS=*
+      - DEBUG=1
+      # Volitelně přidejte další proměnné podle dokumentace
+    ports:
+      - "8000:8080"
+    volumes:
+      - static_data:/opt/recipes/staticfiles
+      - media_data:/opt/recipes/mediafiles
+    networks:
+      - tandoor-network
+
+volumes:
+  postgres_data:
+  static_data:
+  media_data:
+
+networks:
+  tandoor-network:
